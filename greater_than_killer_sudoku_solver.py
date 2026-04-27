@@ -117,6 +117,12 @@ def assign(puzzle, cell, val, domains):
     domains[cell].remove(val)
     return (puzzle, domains)
 
+def cage_update(val, cage_targets, cage_removal, local_cage_idx):
+    cage_targets[local_cage_idx] -= val
+    cage_removal = val
+    return (cage_targets, cage_removal)
+
+
 def setup():
     input_puzzle = np.zeros((9,9), dtype=int)
 
@@ -179,8 +185,11 @@ def solve(puzzle, domains):
 
             (forward_bool, removed) = forward_check(domains, neighbours, cell, val)
             if forward_bool:
+                # update cage possibilities
+                cage_targets, cage_removal = cage_update(val, cage_targets, cage_sizes, local_cage_idx)
                 if solve(puzzle, domains):
                     return True
+                cage_targets += cage_removal
             
             domains = restore(domains, removed)
 
